@@ -5,17 +5,31 @@
 
 #include "temp.cpp"
 
-cv::Mat scanner(std::string path)
+std::vector<cv::Point> scanner(std::string path)
 {
     const int ksize = 5;
     const int sampleWidth = 300;
 
     cv::Mat img = cv::imread(path); //check read
+    if(img.empty())
+        {
+            std::cout<<"Cannot read or find image\n";
+            exit(0);
+        }
+
+    std::cout<<img.size()<<" "<<img.channels()<<"\n";
     cv::Mat resized;
     
-    int ratio = img.cols/sampleWidth;
-    cv::resize(img,resized,cv::Size(sampleWidth,img.rows/ratio));
+    int ratio = 1;
 
+    if(sampleWidth < img.cols)
+    {
+        int ratio = img.cols/sampleWidth;
+        cv::resize(img,resized,cv::Size(sampleWidth,img.rows/ratio));
+    }
+    else
+        resized = img;
+    
     cv::Mat gray = resized;
     cv::cvtColor(resized,gray,cv::COLOR_BGR2GRAY); //handle non bgr type images
     cv::medianBlur(gray,gray,ksize);
@@ -42,15 +56,18 @@ cv::Mat scanner(std::string path)
             }
     }
     
-    //cv::Mat temp = resiz
-    showContours(resized,finalContour);
-    return cv::Mat();
-
+    for(auto point : finalContour)
+    {
+        point.x *= ratio;
+        point.y *= ratio;
+    }
+    showContours(img,finalContour);
+    return finalContour;
 }
 
 int main(int argc,char** argv)
 {
-    std::string path = "doc.jpeg";
+    std::string path = "test.png";
     if(argc > 1 ) path = argv[1];
     scanner(path);
     return 0;
