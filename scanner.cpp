@@ -69,6 +69,7 @@ int main(int argc,char** argv)
 {
     std::string path = "test.png";
     if(argc > 1 ) path = argv[1];
+    else std::cout<<"Usage "<<argv[0]<<" [image path]\n";
     scanner(path);
     return 0;
 }
