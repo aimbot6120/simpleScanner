@@ -3,21 +3,13 @@
 #include<string>
 #include<opencv2/opencv.hpp>
 
-#include "temp.cpp"
+void showContours(cv::Mat& img,std::vector<cv::Point> contour);
 
-std::vector<cv::Point> scanner(std::string path)
+std::vector<cv::Point> scanner(cv::Mat &img, bool showImg = 0)
 {
     const int ksize = 5;
     const int sampleWidth = 300;
 
-    cv::Mat img = cv::imread(path); //check read
-    if(img.empty())
-        {
-            std::cout<<"Cannot read or find image\n";
-            exit(0);
-        }
-
-    std::cout<<img.size()<<" "<<img.channels()<<"\n";
     cv::Mat resized;
     
     int ratio = 1;
@@ -61,15 +53,16 @@ std::vector<cv::Point> scanner(std::string path)
         point.x *= ratio;
         point.y *= ratio;
     }
-    showContours(img,finalContour);
+    if(showImg) showContours(img,finalContour);
     return finalContour;
 }
-
-int main(int argc,char** argv)
+void showContours(cv::Mat& img,std::vector<cv::Point> contour)
 {
-    std::string path = "test.png";
-    if(argc > 1 ) path = argv[1];
-    else std::cout<<"Usage "<<argv[0]<<" [image path]\n";
-    scanner(path);
-    return 0;
+    std::vector<std::vector<cv::Point>> tempContours;
+    tempContours.push_back(contour);
+    cv::Mat temp = img.clone();
+    cv::drawContours(temp,tempContours,-1,cv::Scalar(0,0,255));
+    cv::imshow("image",temp);
+    cv::waitKey(0);
+    cv::destroyAllWindows();
 }

@@ -2,7 +2,9 @@
 #include<vector>
 #include<opencv2/opencv.hpp>
 
-cv::Mat perspectiveTransform(cv::Mat image, std::vector <cv::Point> pts,cv::Size size)
+std::vector<cv::Point> order_points(std::vector<cv::Point> pts);
+
+cv::Mat perspectiveTransform(cv::Mat image, std::vector <cv::Point> pts)
 {
 	for (int i = 0; i != pts.size(); ++i) std::cout << pts[i] << " "; std::cout<<std::endl;
 
@@ -18,7 +20,7 @@ cv::Mat perspectiveTransform(cv::Mat image, std::vector <cv::Point> pts,cv::Size
 	points[6] = bl[0] = rect.at(3).x;
 	points[7] = bl[1] = rect.at(3).y;
 	cv::Mat src = cv::Mat(4, 2, CV_32F, &points);
-	std::cout << "image done";
+	//std::cout << "done\n";
 	src.reshape(4, 2);
 	float a, b, maxWidth, maxHeight;
 	a = sqrt(pow((br[0] - bl[0]), 2) + pow((br[1] - bl[1]), 2));
@@ -37,7 +39,7 @@ cv::Mat perspectiveTransform(cv::Mat image, std::vector <cv::Point> pts,cv::Size
 	M = getPerspectiveTransform(src, dst);
 	warpPerspective(image, warped, M, cv::Size(maxWidth, maxHeight));
 	//    return the warped image
-	std::cout << cv::Size(maxWidth, maxHeight);
+	//std::cout << cv::Size(maxWidth, maxHeight);
 	return warped;
 }
 
@@ -48,7 +50,7 @@ std::vector<cv::Point> order_points(std::vector<cv::Point> pts)
 	sort(pts.begin(), pts.end(), [](cv::Point &a, cv::Point &b){return ((a.x + a.y) < (b.x + b.y));});
 	//cout << "sort done";
 	rect.push_back(pts.at(0));
-	//cout << "push back 0";
+
 	if (pts.at(1).x > pts.at(2).x)
 	{
 		rect.push_back(pts.at(1));
