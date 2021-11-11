@@ -6,7 +6,7 @@ std::vector<cv::Point> order_points(std::vector<cv::Point> pts);
 
 cv::Mat perspectiveTransform(cv::Mat image, std::vector <cv::Point> pts)
 {
-	for (int i = 0; i != pts.size(); ++i) std::cout << pts[i] << " "; std::cout<<std::endl;
+	//for (int i = 0; i != pts.size(); ++i) std::cout << pts[i] << " "; std::cout<<std::endl;
 
 	std::vector<cv::Point> rect = order_points(pts);
 	for (int i = 0; i != rect.size(); ++i) std::cout << rect[i] << " "; std::cout << std::endl;

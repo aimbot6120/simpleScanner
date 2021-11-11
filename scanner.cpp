@@ -12,17 +12,19 @@ std::vector<cv::Point> scanner(cv::Mat &img, bool showImg = 1)
 
     cv::Mat resized;
     
-    int ratio = 1;
+    float ratio = 1.0f;
 
     if(sampleWidth < img.cols)
     {
-        ratio = img.cols/sampleWidth;
+        ratio = (float)img.cols/sampleWidth;
         cv::resize(img,resized,cv::Size(sampleWidth,img.rows/ratio));
     }
     else
         resized = img;
     
-    cv::Mat gray = resized;
+    std::cout<<"downsampled to "<< resized.size()<<" ratio "<<ratio<<"\n";
+
+    cv::Mat gray (resized);
     cv::cvtColor(resized,gray,cv::COLOR_BGR2GRAY); //handle non bgr type images
 
     cv::medianBlur(gray,gray,ksize);
@@ -68,13 +70,14 @@ std::vector<cv::Point> scanner(cv::Mat &img, bool showImg = 1)
     }
 
     std::cout<<contours.size()<<" contours\n";
-
-    for(auto point : finalContour)
-    {
-        point.x *= ratio;
-        point.y *= ratio;
-    }
+    // std::cout<<"downsampled contour"<<finalContour<<"\n";
     if(showImg) showContours(resized,finalContour);
+    for(cv::Point &point : finalContour)
+    {
+        point.x *= 3.2f;
+        point.y *= 3.2f;
+    }
+    // std::cout<<"original contour"<<finalContour<<"\n"; 
     return finalContour;
 }
 void showContours(cv::Mat& img,std::vector<cv::Point> contour)
