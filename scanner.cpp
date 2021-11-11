@@ -5,7 +5,7 @@
 
 void showContours(cv::Mat& img,std::vector<cv::Point> contour);
 
-std::vector<cv::Point> scanner(cv::Mat &img, bool showImg = 0)
+std::vector<cv::Point> scanner(cv::Mat &img, bool showImg = 1)
 {
     const int ksize = 5;
     const int sampleWidth = 300;
@@ -16,7 +16,7 @@ std::vector<cv::Point> scanner(cv::Mat &img, bool showImg = 0)
 
     if(sampleWidth < img.cols)
     {
-        int ratio = img.cols/sampleWidth;
+        ratio = img.cols/sampleWidth;
         cv::resize(img,resized,cv::Size(sampleWidth,img.rows/ratio));
     }
     else
@@ -24,22 +24,41 @@ std::vector<cv::Point> scanner(cv::Mat &img, bool showImg = 0)
     
     cv::Mat gray = resized;
     cv::cvtColor(resized,gray,cv::COLOR_BGR2GRAY); //handle non bgr type images
+
     cv::medianBlur(gray,gray,ksize);
 
     cv::Mat &canny = gray;
     cv::Canny(gray,canny,75,200);
 
+    if(showImg)
+    {
+        cv::imshow("canny",canny);
+        cv::waitKey(0);
+        cv::destroyAllWindows();
+    }
+
+    cv::Mat morphed;
+    //cv::dilate(canny,dilated,cv::getStructuringElement())
+    cv::morphologyEx(canny,morphed,cv::MORPH_CLOSE,cv::getStructuringElement(cv::MORPH_RECT,cv::Size(5,5)));
+
+    if(showImg)
+    {
+        cv::imshow("morphed",morphed);
+        cv::waitKey(0);
+        cv::destroyAllWindows();
+    }
+
     std::vector<std::vector<cv::Point>> contours;
     std::vector<cv::Point> finalContour;
     finalContour.reserve(4);
-
-    cv::findContours(canny,contours,cv::RETR_EXTERNAL,cv::CHAIN_APPROX_SIMPLE);
-    
-    for(auto contour:contours)
+    cv::findContours(morphed,contours,cv::RETR_EXTERNAL,cv::CHAIN_APPROX_SIMPLE);
+    sort(contours.begin(), contours.end(), [](const std::vector<cv::Point>& c1, const std::vector<cv::Point>& c2){
+    return cv::contourArea(c1, false) > cv::contourArea(c2, false);});
+    for(int i = 0; i !=contours.size(); ++i)
     {
-        double perimeter = cv::arcLength(contour,true);
+        double perimeter = cv::arcLength(contours[i],true);
         std::vector<cv::Point> approx; 
-        cv::approxPolyDP(contour,approx,0.02*perimeter,true);
+        cv::approxPolyDP(contours[i],approx,0.02*perimeter,true);
 
         if(approx.size() == 4)
             {
@@ -47,13 +66,15 @@ std::vector<cv::Point> scanner(cv::Mat &img, bool showImg = 0)
                 break;
             }
     }
-    
+
+    std::cout<<contours.size()<<" contours\n";
+
     for(auto point : finalContour)
     {
         point.x *= ratio;
         point.y *= ratio;
     }
-    if(showImg) showContours(img,finalContour);
+    if(showImg) showContours(resized,finalContour);
     return finalContour;
 }
 void showContours(cv::Mat& img,std::vector<cv::Point> contour)
