@@ -1,5 +1,5 @@
 # simpleScanner
-A simple scanner to detect documents written in C++
+A simple scanner written in C++ to detect documents 
 
 Usage
 ```
