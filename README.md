@@ -4,7 +4,8 @@ A simple scanner written in C++ to detect documents
 ## Usage
 
 ## Building
-This project requires opencv. [Installation link](https://cv-tricks.com/installation/opencv-4-1-ubuntu18-04/)
+This project requires opencv. [Installation link](https://cv-tricks.com/installation/opencv-4-1-ubuntu18-04/)\
+I have added a build for now
 
 ```
 g++-9 -std=c++17 main.cpp `pkg-config --libs --cflags opencv4` -o result -O3
